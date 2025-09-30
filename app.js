@@ -31,8 +31,12 @@ $(document).ready(function() {
         var messageClass = sender === 'user' ? 'user-message' : 'ai-message';
         var messageElement = $('<div class="message ' + messageClass + '"></div>');
         $('#chat-box').append(messageElement);
-        // Scroll to the bottom
-        $('#chat-box').scrollTop($('#chat-box')[0].scrollHeight);
+
+        // For jQuery 1.2.4, .scrollTop(value) is not a function.
+        // We must access the DOM element directly to set its scrollTop property.
+        var chatBox = $('#chat-box')[0];
+        chatBox.scrollTop = chatBox.scrollHeight;
+
         if (sender === 'user') {
             messageElement.text(text);
         }
@@ -46,6 +50,7 @@ $(document).ready(function() {
         var accumulatedText = '';
         var characters = fullResponse.split('');
         var currentIndex = 0;
+        var chatBox = $('#chat-box')[0];
 
         function streamCharacter() {
             if (currentIndex < characters.length) {
@@ -54,12 +59,12 @@ $(document).ready(function() {
                 // Adding a simple cursor effect for better UX.
                 aiMessageElement.html(marked.parse(accumulatedText + '█'));
                 currentIndex++;
-                $('#chat-box').scrollTop($('#chat-box')[0].scrollHeight);
+                chatBox.scrollTop = chatBox.scrollHeight;
                 setTimeout(streamCharacter, 25); // Adjust delay for stream speed
             } else {
                 // When streaming is complete, render the final HTML without the cursor.
                 aiMessageElement.html(marked.parse(accumulatedText));
-                $('#chat-box').scrollTop($('#chat-box')[0].scrollHeight);
+                chatBox.scrollTop = chatBox.scrollHeight;
             }
         }
 
