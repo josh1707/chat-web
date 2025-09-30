@@ -74,3 +74,49 @@ body {
 #send-btn:hover {
     background-color: #0056b3;
 }
+
+/* Markdown specific styles */
+.ai-message h1, .ai-message h2, .ai-message h3 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 5px;
+}
+
+.ai-message p {
+    margin: 0 0 10px 0;
+}
+
+.ai-message ul, .ai-message ol {
+    padding-left: 20px;
+    margin-bottom: 10px;
+}
+
+.ai-message li {
+    margin-bottom: 5px;
+}
+
+.ai-message pre {
+    background-color: #2d2d2d;
+    color: #f8f8f2;
+    padding: 15px;
+    border-radius: 5px;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+.ai-message code {
+    font-family: 'Courier New', Courier, monospace;
+    background-color: #f4f4f4;
+    padding: 2px 4px;
+    border-radius: 3px;
+    color: #333;
+}
+
+.ai-message pre code {
+    background-color: transparent;
+    color: inherit;
+    padding: 0;
+    border-radius: 0;
+}

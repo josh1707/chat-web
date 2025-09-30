@@ -38,20 +38,28 @@ $(document).ready(function() {
 
     function simulateAIResponse() {
         const aiMessageElement = appendMessage('', 'ai');
-        const fullResponse = "This is a simulated streaming response from the AI. Each word appears one by one to demonstrate the streaming effect.";
-        const words = fullResponse.split(' ');
-        let currentWordIndex = 0;
+        const fullResponse = "# Hello, Markdown!\n\nHere is a list of features:\n- **Bold text**\n- *Italic text*\n- A code block:\n\n```javascript\nconsole.log(\"Hello, world!\");\n```\n\nThis is rendered in real-time.";
 
-        function streamWord() {
-            if (currentWordIndex < words.length) {
-                aiMessageElement.text(aiMessageElement.text() + words[currentWordIndex] + ' ');
-                currentWordIndex++;
-                // Scroll to the bottom
+        let accumulatedText = '';
+        const characters = fullResponse.split('');
+        let currentIndex = 0;
+
+        function streamCharacter() {
+            if (currentIndex < characters.length) {
+                accumulatedText += characters[currentIndex];
+                // Use marked.parse() to convert markdown to HTML and render it.
+                // Adding a simple cursor effect for better UX.
+                aiMessageElement.html(marked.parse(accumulatedText + '█'));
+                currentIndex++;
                 $('#chat-box').scrollTop($('#chat-box')[0].scrollHeight);
-                setTimeout(streamWord, 100); // Adjust delay for faster/slower streaming
+                setTimeout(streamCharacter, 25); // Adjust delay for stream speed
+            } else {
+                // When streaming is complete, render the final HTML without the cursor.
+                aiMessageElement.html(marked.parse(accumulatedText));
+                $('#chat-box').scrollTop($('#chat-box')[0].scrollHeight);
             }
         }
 
-        streamWord();
+        streamCharacter();
     }
 });
