@@ -1,17 +1,20 @@
 $(document).ready(function() {
-    $('#send-btn').on('click', function() {
+    // Use the older .click() event handler for jQuery 1.2.4 compatibility
+    $('#send-btn').click(function() {
         sendMessage();
     });
 
-    $('#user-input').on('keypress', function(e) {
+    // Use the older .keypress() event handler
+    $('#user-input').keypress(function(e) {
         if (e.which === 13) {
             sendMessage();
         }
     });
 
     function sendMessage() {
-        const userInput = $('#user-input').val();
-        if (userInput.trim() === '') {
+        var userInput = $('#user-input').val();
+        // Use jQuery.trim() for compatibility with older browsers
+        if ($.trim(userInput) === '') {
             return;
         }
 
@@ -25,8 +28,8 @@ $(document).ready(function() {
     }
 
     function appendMessage(text, sender) {
-        const messageClass = sender === 'user' ? 'user-message' : 'ai-message';
-        const messageElement = $(`<div class="message ${messageClass}"></div>`);
+        var messageClass = sender === 'user' ? 'user-message' : 'ai-message';
+        var messageElement = $('<div class="message ' + messageClass + '"></div>');
         $('#chat-box').append(messageElement);
         // Scroll to the bottom
         $('#chat-box').scrollTop($('#chat-box')[0].scrollHeight);
@@ -37,12 +40,12 @@ $(document).ready(function() {
     }
 
     function simulateAIResponse() {
-        const aiMessageElement = appendMessage('', 'ai');
-        const fullResponse = "# Hello, Markdown!\n\nHere is a list of features:\n- **Bold text**\n- *Italic text*\n- A code block:\n\n```javascript\nconsole.log(\"Hello, world!\");\n```\n\nThis is rendered in real-time.";
+        var aiMessageElement = appendMessage('', 'ai');
+        var fullResponse = "# Hello, Markdown!\n\nHere is a list of features:\n- **Bold text**\n- *Italic text*\n- A code block:\n\n```javascript\nconsole.log(\"Hello, world!\");\n```\n\nThis is rendered in real-time.";
 
-        let accumulatedText = '';
-        const characters = fullResponse.split('');
-        let currentIndex = 0;
+        var accumulatedText = '';
+        var characters = fullResponse.split('');
+        var currentIndex = 0;
 
         function streamCharacter() {
             if (currentIndex < characters.length) {
