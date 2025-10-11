@@ -45,29 +45,74 @@ $(document).ready(function() {
 
     function simulateAIResponse() {
         var aiMessageElement = appendMessage('', 'ai');
-        var fullResponse = "# Hello, Markdown!\n\nHere is a list of features:\n- **Bold text**\n- *Italic text*\n- A code block:\n\n```javascript\nconsole.log(\"Hello, world!\");\n```\n\nThis is rendered in real-time.";
+        var fullResponse = "# Hello, Markdown!\n\nHere is a chart:\n[ECHART]{\"title\":{\"text\":\"Sales Data\"},\"tooltip\":{},\"xAxis\":{\"data\":[\"Mon\",\"Tue\",\"Wed\",\"Thu\",\"Fri\",\"Sat\",\"Sun\"]},\"yAxis\":{},\"series\":[{\"name\":\"Sales\",\"type\":\"bar\",\"data\":[120,200,150,80,70,110,130]}]}[/ECHART]\n\nAnd some more text here.";
 
-        var accumulatedText = '';
-        var characters = fullResponse.split('');
         var currentIndex = 0;
         var chatBox = $('#chat-box')[0];
 
-        function streamCharacter() {
-            if (currentIndex < characters.length) {
-                accumulatedText += characters[currentIndex];
-                // Use marked.parse() to convert markdown to HTML and render it.
-                // Adding a simple cursor effect for better UX.
-                aiMessageElement.html(marked.parse(accumulatedText + '█'));
-                currentIndex++;
-                chatBox.scrollTop = chatBox.scrollHeight;
-                setTimeout(streamCharacter, 25); // Adjust delay for stream speed
-            } else {
-                // When streaming is complete, render the final HTML without the cursor.
-                aiMessageElement.html(marked.parse(accumulatedText));
-                chatBox.scrollTop = chatBox.scrollHeight;
-            }
+        var isInsideChartBlock = false;
+        var currentJsonString = '';
+        var currentMarkdownString = '';
+        var chartIdCounter = 0;
+        var currentMarkdownElement = null;
+
+        function createNewMarkdownElement() {
+            currentMarkdownElement = $('<div class="markdown-segment"></div>');
+            aiMessageElement.append(currentMarkdownElement);
+            return currentMarkdownElement;
         }
 
-        streamCharacter();
+        createNewMarkdownElement();
+
+        function processStream() {
+            if (currentIndex >= fullResponse.length) {
+                if (currentMarkdownElement && currentMarkdownString) {
+                    currentMarkdownElement.html(marked.parse(currentMarkdownString));
+                }
+                chatBox.scrollTop = chatBox.scrollHeight;
+                return;
+            }
+
+            if (fullResponse.substring(currentIndex, currentIndex + 8) === '[ECHART]') {
+                if (currentMarkdownString) {
+                    currentMarkdownElement.html(marked.parse(currentMarkdownString));
+                }
+                isInsideChartBlock = true;
+                currentIndex += 8;
+                currentJsonString = '';
+            } else if (fullResponse.substring(currentIndex, currentIndex + 9) === '[/ECHART]') {
+                isInsideChartBlock = false;
+                currentIndex += 9;
+
+                var chartId = 'echart-instance-' + chartIdCounter++;
+                var chartContainer = $('<div id="' + chartId + '" class="echart-container" style="width: 100%; height:300px;"></div>');
+                aiMessageElement.append(chartContainer);
+
+                try {
+                    var chartOption = JSON.parse(currentJsonString);
+                    var chart = echarts.init(document.getElementById(chartId));
+                    chart.setOption(chartOption);
+                } catch (e) {
+                    console.error("Failed to parse or render chart:", e);
+                    chartContainer.text("Error rendering chart.");
+                }
+
+                currentMarkdownString = '';
+                createNewMarkdownElement();
+            } else {
+                if (isInsideChartBlock) {
+                    currentJsonString += fullResponse[currentIndex];
+                } else {
+                    currentMarkdownString += fullResponse[currentIndex];
+                    currentMarkdownElement.html(marked.parse(currentMarkdownString + '█'));
+                }
+                currentIndex++;
+            }
+
+            chatBox.scrollTop = chatBox.scrollHeight;
+            setTimeout(processStream, 25);
+        }
+
+        processStream();
     }
 });
