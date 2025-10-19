@@ -127,4 +127,5 @@ body {
     margin-bottom: 10px;
     border-radius: 8px;
     overflow: hidden;
+    transform: translateZ(0);
 }
